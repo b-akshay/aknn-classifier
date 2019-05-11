@@ -171,31 +171,29 @@ def create_div_landscapes():
                 id='landscape-plot',
                 config={'displaylogo': False, 'displayModeBar': True}, 
                 style={ 'height': '100vh'}
-            ), 
-            html.Div(
-                className="row", 
-                children=[
-                    html.Div(
-                        className="four columns", 
-                        children=[
-                            html.A(
-                                html.Button(
-                                    id='download-layout-button', 
-                                    children='Export layout', 
-                                    style=style_text_box, 
-                                    n_clicks='0', 
-                                    n_clicks_timestamp='0'
-                                ), 
-                                id='download-layout-link',
-                                download="selected_layout.csv", 
-                                href="",
-                                target="_blank", 
-                                style={ 'width': '100%', 'textAlign': 'center', 'color': app_config.params['font_color'] }
-                            )
-                        ], 
-                        style=style_invis_dialog_box
-                    )]
-            )]
+            )#, 
+#             html.Div(
+#                 className="row", 
+#                 children=[
+#                     html.Div(
+#                         className="four columns", 
+#                         children=[
+#                             html.A(
+#                                 html.Button(
+#                                     id='download-layout-button', 
+#                                     children='Export layout', 
+#                                     style=style_text_box, 
+#                                     n_clicks='0', n_clicks_timestamp='0'
+#                                 ), 
+#                                 id='download-layout-link',
+#                                 download="selected_layout.csv", 
+#                                 href="", target="_blank", 
+#                                 style={ 'width': '100%', 'textAlign': 'center', 'color': app_config.params['font_color'] }
+#                             )], 
+#                         style=style_invis_dialog_box
+#                     )]
+#             )
+        ]
     )
 
 
@@ -288,11 +286,11 @@ def create_div_mainctrl(more_colorvars):
                 children=[
                     dcc.Slider(
                         id='slider-confidence-param',
-                        min=0, max=8, step=0.2, 
+                        min=0, max=9.5, step=0.5, 
                         value=1.0
                     ), 
                     html.Div(
-                        children='1-NN <------   Confidence parameter   ------> Abstain more', 
+                        children='1-NN (Abstain less) <------   Confidence parameter   ------> Abstain more', 
                         style={
                             'textAlign': 'center', 
                             'color': app_config.params['font_color'], 
@@ -311,31 +309,13 @@ def create_div_mainctrl(more_colorvars):
                             dcc.RadioItems(
                                 id='select-knn-alg', 
                                 options=[ 
-                                    {'label': 'Non-adaptive', 'value': 'nonadaptive'}, 
-                                    {'label': 'AKNN', 'value': 'ova'}, 
+                                    # {'label': 'Non-adaptive', 'value': 'nonadaptive'}, 
+                                    {'label': 'AKNN', 'value': 'ovr'}, 
                                     {'label': 'AKNN-UCB', 'value': 'ucb'}
                                 ], 
                                 style=legend_font_macro, 
                                 labelStyle={ 'display': 'inline-block', 'margin-right': '5px' }, 
-                                value='ova'
-                            )]
-                    ), 
-                    html.Div(
-                        className='two columns',
-                        children=[
-                            html.P(
-                                "Minimum k",
-                                style={ 'textAlign': 'right', 'width': '100%', 'color': app_config.params['font_color'] }
-                            )], 
-                        style={'padding-top': '7px'}
-                    ),
-                    html.Div(
-                        className='two columns', 
-                        children=[
-                            dcc.Input(
-                                id='select-minnum-nbrs', 
-                                type='number', value='5', 
-                                style={'textAlign': 'center', 'width': '100%'}
+                                value='ovr'
                             )]
                     )]
             ), 

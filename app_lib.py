@@ -59,6 +59,7 @@ def traces_scatter(
             'x': data_df[display_ndces['x']], 
             'y': data_df[display_ndces['y']], 
             'hoverinfo': 'text', 
+            'text': [x for x in continuous_color_var], 
             'mode': 'markers', 
             'marker': {
                 'size': marker_size, 
@@ -78,7 +79,7 @@ def traces_scatter(
                 }, 
                 'color': continuous_color_var, 
                 'colorscale': colorscale, 
-                #'cmin': -max_magnitude, 
+                'cmin': np.min(continuous_color_var), 
                 'cmax': max_magnitude
             }, 
             'selected': style_selected, 
@@ -97,14 +98,10 @@ def traces_scatter(
     else:    # Categorical color scheme, one trace per color
         cnt = 0
         for idx, val in data_df.groupby(color_var):
-            if app_config.params['legendgroup']:
-                legendgroup = idx.split('_')[0]
-            else:
-                legendgroup = idx
-            if legendgroup not in cumu_color_dict:
+            if idx not in cumu_color_dict:
                 trace_color = colorscale[cnt]
                 cnt += 1
-                cumu_color_dict[legendgroup] = trace_color
+                cumu_color_dict[idx] = trace_color
             trace_opacity = 1.0
             trace_info = {
                 'name': str(idx), 
@@ -120,7 +117,6 @@ def traces_scatter(
                     'symbol': 'circle', 
                     'color': trace_color
                 }, 
-                'legendgroup': legendgroup, 
                 'selected': style_selected
             }
             if not three_dim_plot:

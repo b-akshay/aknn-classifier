@@ -20,7 +20,8 @@ import app_config, app_lib, building_block_divs, aknn_alg
 plot_data_df = pd.read_csv(app_config.params['plot_data_df_path'][0], sep="\t", index_col=False)
 # graph_adj = sp.sparse.load_npz(app_config.params['adj_mat_path'])
 
-raw_data = sp.sparse.load_npz(app_config.params['raw_datamat_path'])
+raw_data = sp.sparse.load_npz(app_config.params['raw_datamat_path'][0])
+nbr_list_sorted_small = np.load(app_config.params['nbrs_path'][0])
 
 
 app = dash.Dash(__name__)
@@ -59,21 +60,37 @@ def calc_clicked_idx(clickData, data_df, plot_dimension):
 def display_test(
     clickData
 ):
-    return "***CLICKED DATA***\n{}".format(json.dumps(clickData, indent=2))
+    return ""#"***CLICKED DATA***\n{}".format(json.dumps(clickData, indent=2))
 
 
 @app.callback(
     Output('display-nbr-fracs', 'figure'),
     [Input('landscape-plot', 'clickData'), 
-     Input('main-landscape-dimension', 'value')]
+     Input('slider-confidence-param', 'value'), 
+     Input('main-landscape-dimension', 'value'), 
+     Input('landscape-plot', 'figure')]
 )
-def display_nbr_fracs(clickData, plot_dimension):
-    clicked_idx = calc_clicked_idx(clickData, plot_data_df, plot_dimension)
+def display_nbr_fracs(clickData, conf_param, plot_dimension, scatter_fig):
     toret_fig = {
         'data': [], 
         'layout': building_block_divs.create_scatter_layout([])
     }
-    # TODO Add implementation of scatterplot.
+    if not clickData or ('points' not in clickData) or (scatter_fig is None) or (len(scatter_fig['data']) <= 1):
+        return toret_fig
+    clicked_idx = calc_clicked_idx(clickData, plot_data_df, plot_dimension)
+    thresholds = conf_param/np.sqrt(np.arange(nbr_list_sorted_small.shape[1])+1)
+    (pred_label, adaptive_k_ndx, fracs_labels) = aknn_alg.aknn(nbr_list_sorted_small[clicked_idx,:], plot_data_df['Labels'], thresholds)
+    for i in range(len(app_config.params['label_names'])):
+        lbl_name = app_config.params['label_names'][i]
+        lbl_color = app_config.params['colorscale_discrete'][i]
+        new_trace = scatter_fig['data'][i]
+        new_trace.update({
+            'x': np.arange(len(thresholds)) + 1, 
+            'y': fracs_labels[i, :], 
+            'mode': 'lines+markers'
+        })
+        new_trace['line'] = { 'color': new_trace['marker']['color'], 'width': 3.0 }
+        toret_fig['data'].append(new_trace)
     return toret_fig
 
 
@@ -200,15 +217,15 @@ def update_landscape(
     absc_arr = data_df[app_config.params['display_coordinates']['x']]
     ordi_arr = data_df[app_config.params['display_coordinates']['y']]
     
-    print('Color scheme: {}'.format(color_scheme))
     continuous_var=False
     cscale = app_config.params['colorscale_discrete']
     # Check if a continuous feature is chosen to be plotted.
     if (color_scheme in ['Adaptive k (# neighbors)', 'Predicted labels']):
-        pred_labels, adaptive_ks = aknn_alg.predict_nn_rule(nbr_list_sorted, data_df['Labels'], log_complexity=confidence_param, mode='ovr')
-        data_df['Adaptive k (# neighbors)'] = adaptive_ks
-        data_df['Predicted labels'] = pred_labels
-        print(adaptive_ks, pred_labels)
+        # pred_labels, adaptive_ks = aknn_alg.predict_nn_rule(nbr_list_sorted, data_df['Labels'], log_complexity=confidence_param, mode='ovr')
+        pred_labels_name = 'Predicted labels (A = {:.1f})'.format(confidence_param)
+        adaptive_ks_name = 'Log(adaptive k) (A = {:.1f})'.format(confidence_param)
+        data_df['Adaptive k (# neighbors)'] = data_df[adaptive_ks_name].values
+        data_df['Predicted labels'] = data_df[pred_labels_name].values
         if (color_scheme == 'Adaptive k (# neighbors)'): 
             cscale = app_config.params['colorscale_continuous']
             continuous_var = True
