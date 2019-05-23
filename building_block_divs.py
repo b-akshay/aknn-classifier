@@ -356,7 +356,7 @@ def create_div_mainapp(
                 className='row', 
                 children=[ 
                     dcc.Markdown(
-                        """Source [repository](https://github.com/b-akshay/aknn-classifier)."""
+                        """Source [repository](aknn-classifier)."""  # TODO insert signature. (https://github.com/b-akshay/aknn-classifier)."""
                     )], 
                 style={
                     'textAlign': 'center', 
