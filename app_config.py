@@ -15,9 +15,9 @@ else:
 params['bg_color'] = '#000000'
 
 
-params['plot_data_df_path'] = [params['data_pfx'] + "notMNIST/notMNIST_vizdf.csv"]
-params['raw_datamat_path'] = [params['data_pfx'] + "notMNIST/notMNIST_small_data.npz"]
-params['nbrs_path'] = [params['data_pfx'] + "notMNIST/notMNIST_small_nbrs_1000.npy"]
+params['plot_data_df_path'] = [params['data_pfx'] + "notMNIST/notMNIST_vizdf.csv", params['data_pfx'] + "single_cell/tabula_vizdf.csv"]
+params['raw_datamat_path'] = [params['data_pfx'] + "notMNIST/notMNIST_small_data.npz", params['data_pfx'] + "notMNIST/notMNIST_small_data.npz"]
+params['nbrs_path'] = [params['data_pfx'] + "notMNIST/notMNIST_small_nbrs_1000.npy", params['data_pfx'] + "single_cell/tabula_subset_nbrs_1000.npy"]
 params['label_names'] = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J']
 
 
@@ -26,7 +26,7 @@ params['default_color_var'] = 'Labels'
 params['display_ID_var'] = 'cell_IDs'
 
 # params['dataset_options'] = [x.split('/')[-1].split('.')[0] for x in params['plot_data_df_path']]
-params['dataset_options'] = ["notMNIST"]
+params['dataset_options'] = ["notMNIST", "Tabula Muris"]
 
 params['bg_color'] = '#000000'
 

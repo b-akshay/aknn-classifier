@@ -235,7 +235,7 @@ def create_div_sidepanels():
 # Default dataset first in the given list of dataset options.
 def create_div_select_dataset(dataset_options):
     return html.Div(
-        className='three columns', 
+        className='four columns', 
         children=[
             html.Div(
                 className='four columns', 
@@ -301,7 +301,7 @@ def create_div_mainctrl(more_colorvars):
                 style={ 'padding': 2, 'margin': 2}
             ), 
             html.Div(
-                className='three columns', 
+                className='two columns', 
                 children=[
                     html.Div(
                         className='eight columns', 
@@ -310,8 +310,8 @@ def create_div_mainctrl(more_colorvars):
                                 id='select-knn-alg', 
                                 options=[ 
                                     # {'label': 'Non-adaptive', 'value': 'nonadaptive'}, 
-                                    {'label': 'AKNN', 'value': 'ovr'}, 
-                                    {'label': 'AKNN-UCB', 'value': 'ucb'}
+                                    {'label': 'AKNN', 'value': 'ovr'}#, 
+                                    #{'label': 'AKNN-UCB', 'value': 'ucb'}
                                 ], 
                                 style=legend_font_macro, 
                                 labelStyle={ 'display': 'inline-block', 'margin-right': '5px' }, 

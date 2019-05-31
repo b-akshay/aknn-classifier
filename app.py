@@ -30,7 +30,7 @@ if not app_config._DEPLOY_LOCALLY:
 
 server=app.server
 app.layout = building_block_divs.create_div_mainapp(
-    more_colorvars=['Adaptive k (# neighbors)', 'Predicted labels']
+    more_colorvars=['Predicted labels', 'Adaptive k (# neighbors)', 'Adaptive k quantile']
 )
 
 def calc_clicked_idx(clickData, data_df, plot_dimension):
@@ -220,13 +220,15 @@ def update_landscape(
     continuous_var=False
     cscale = app_config.params['colorscale_discrete']
     # Check if a continuous feature is chosen to be plotted.
-    if (color_scheme in ['Adaptive k (# neighbors)', 'Predicted labels']):
+    if (color_scheme in ['Adaptive k (# neighbors)', 'Adaptive k quantile', 'Predicted labels']):
         # pred_labels, adaptive_ks = aknn_alg.predict_nn_rule(nbr_list_sorted, data_df['Labels'], log_complexity=confidence_param, mode='ovr')
         pred_labels_name = 'Predicted labels (A = {:.1f})'.format(confidence_param)
-        adaptive_ks_name = 'Log(adaptive k) (A = {:.1f})'.format(confidence_param)
+        adaptive_ks_name = 'Adaptive k (A = {:.1f})'.format(confidence_param)
         data_df['Adaptive k (# neighbors)'] = data_df[adaptive_ks_name].values
         data_df['Predicted labels'] = data_df[pred_labels_name].values
-        if (color_scheme == 'Adaptive k (# neighbors)'): 
+        adak_q = sp.stats.rankdata(data_df[adaptive_ks_name].values)
+        data_df['Adaptive k quantile'] = adak_q/np.max(adak_q)
+        if (color_scheme in ['Adaptive k (# neighbors)', 'Adaptive k quantile']): 
             cscale = app_config.params['colorscale_continuous']
             continuous_var = True
         elif (color_scheme == 'Predicted labels'):
