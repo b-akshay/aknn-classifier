@@ -1,9 +1,10 @@
 # aknn-classifier
 Code for the adaptive nearest neighbor classifier (AKNN) from:
 
-An adaptive nearest neighbor rule for classification
-Akshay Balsubramani, Sanjoy Dasgupta, Yoav Freund, Shay Moran
+An adaptive nearest neighbor rule for classification  
+Akshay Balsubramani, Sanjoy Dasgupta, Yoav Freund, Shay Moran  
 https://arxiv.org/abs/1905.12717
+
 
 Example usage can be found in `examples/`.
 
