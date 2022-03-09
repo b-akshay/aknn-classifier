@@ -10,8 +10,41 @@ Author: Akshay Balsubramani
 
 import numpy as np, sklearn, umap
 import sklearn.metrics
+from sklearn.neighbors import NearestNeighbors
 from sklearn import preprocessing
 
+
+
+def aknn_predict(
+    ref_data, 
+    labels, 
+    log_complexity=1.0, 
+    query_data=None, 
+    max_k=100
+):
+    # itime = time.time()
+    if query_data is None:
+        query_data = ref_data
+    nbrs = sklearn.neighbors.NearestNeighbors(n_neighbors=max_k).fit(ref_data)
+    distances, indices = nbrs.kneighbors(query_data)
+    distinct_labels = np.unique(labels)
+    rngarr = np.arange(indices.shape[1])+1
+    query_nbrs = labels[indices]
+    fracs_labels = [np.cumsum(query_nbrs == i, axis=1)/rngarr for i in distinct_labels]
+    # print("Clustering computed. Time: {}".format(time.time() - itime))
+    thresholds = log_complexity/np.sqrt(np.arange(indices.shape[1]) + 1)
+    numlabels_predicted = np.add.reduce([f > (thresholds + 1.0/len(distinct_labels)) for f in fracs_labels])
+    adaptive_k = np.argmax(numlabels_predicted > 0, axis=1)
+    
+    pred_labels = np.zeros(fracs_labels[0].shape[0]).astype(str)
+    for i in range(fracs_labels[0].shape[0]):
+        if adaptive_k[i] == 0:
+            pred_labels[i] = '?'
+        else:
+            lst = [f[i, adaptive_k[i]] for f in fracs_labels]
+            pred_labels[i] = distinct_labels[np.argmax(lst)]
+    # print("Clustering computed. Time: {}".format(time.time() - itime))
+    return np.array(pred_labels), np.array(adaptive_k)
 
 
 def aknn(nbrs_arr, labels, thresholds, distinct_labels=['A','B','C','D','E','F','G','H','I','J']):
@@ -52,7 +85,7 @@ def aknn(nbrs_arr, labels, thresholds, distinct_labels=['A','B','C','D','E','F',
     return (pred_label, first_admissible_ndx, fracs_labels)
 
 
-def predict_nn_rule(nbr_list_sorted, labels, log_complexity=1.0, distinct_labels=['A','B','C','D','E','F','G','H','I','J']):
+def predict_nn_rule(nbr_list_sorted, labels, log_complexity=1.0):
     """
     Given matrix of ordered nearest neighbors for each point, returns AKNN's label predictions and adaptive neighborhood sizes.
     
@@ -86,7 +119,7 @@ def predict_nn_rule(nbr_list_sorted, labels, log_complexity=1.0, distinct_labels
     return np.array(pred_labels), np.array(adaptive_ks)
 
 
-def calc_nbrs_exact(raw_data, k=1000):
+def calc_nbrs_exact(raw_data, k=1000, brute_force=False):
     """
     Calculate list of `k` exact Euclidean nearest neighbors for each point.
     
@@ -100,9 +133,13 @@ def calc_nbrs_exact(raw_data, k=1000):
     nbr_list_sorted: array of shape (n_samples, n_neighbors)
         Indices of the `n_neighbors` nearest neighbors in the dataset, for each data point.
     """
-    a = sklearn.metrics.pairwise_distances(raw_data)
-    nbr_list_sorted = np.argsort(a, axis=1)[:, 1:]
-    return nbr_list_sorted[:, :k]
+    if brute_force:
+        a = sklearn.metrics.pairwise_distances(raw_data)
+        nbr_list_sorted = np.argsort(a, axis=1)[:, 1:]
+        return nbr_list_sorted[:, :k]
+    else:
+        distances, indices = NearestNeighbors(n_neighbors=k+1).fit(raw_data).kneighbors(raw_data)
+        return indices[:, 1:]
 
 
 def knn_rule(nbr_list_sorted, labels, k=10):
