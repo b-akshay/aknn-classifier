@@ -12,6 +12,7 @@ import numpy as np, sklearn, umap
 import sklearn.metrics
 from sklearn.neighbors import NearestNeighbors
 from sklearn import preprocessing
+import pynndescent
 
 
 
@@ -119,7 +120,7 @@ def predict_nn_rule(nbr_list_sorted, labels, log_complexity=1.0):
     return np.array(pred_labels), np.array(adaptive_ks)
 
 
-def calc_nbrs_exact(raw_data, k=1000, brute_force=False):
+def calc_nbrs_exact(raw_data, k=1000, brute_force=False, use_nndescent=True):
     """
     Calculate list of `k` exact Euclidean nearest neighbors for each point.
     
@@ -133,6 +134,10 @@ def calc_nbrs_exact(raw_data, k=1000, brute_force=False):
     nbr_list_sorted: array of shape (n_samples, n_neighbors)
         Indices of the `n_neighbors` nearest neighbors in the dataset, for each data point.
     """
+    if use_nndescent:
+        index = pynndescent.NNDescent(raw_data, n_neighbors=k)
+        indices, distances = index.neighbor_graph
+        return indices[:, 1:]
     if brute_force:
         a = sklearn.metrics.pairwise_distances(raw_data)
         nbr_list_sorted = np.argsort(a, axis=1)[:, 1:]
