@@ -8,7 +8,7 @@ https://arxiv.org/abs/1905.12717
 Author: Akshay Balsubramani
 """
 
-import numpy as np, sklearn, umap
+import numpy as np, sklearn
 import sklearn.metrics
 from sklearn.neighbors import NearestNeighbors
 from sklearn import preprocessing
@@ -19,7 +19,7 @@ import pynndescent
 def aknn_predict(
     ref_data, 
     labels, 
-    log_complexity=1.0, 
+    margin=1.0, 
     query_data=None, 
     max_k=100
 ):
@@ -33,7 +33,7 @@ def aknn_predict(
     query_nbrs = labels[indices]
     fracs_labels = [np.cumsum(query_nbrs == i, axis=1)/rngarr for i in distinct_labels]
     # print("Clustering computed. Time: {}".format(time.time() - itime))
-    thresholds = log_complexity/np.sqrt(np.arange(indices.shape[1]) + 1)
+    thresholds = margin/np.sqrt(np.arange(indices.shape[1]) + 1)
     numlabels_predicted = np.add.reduce([f > (thresholds + 1.0/len(distinct_labels)) for f in fracs_labels])
     adaptive_k = np.argmax(numlabels_predicted > 0, axis=1)
     
@@ -86,7 +86,7 @@ def aknn(nbrs_arr, labels, thresholds, distinct_labels=['A','B','C','D','E','F',
     return (pred_label, first_admissible_ndx, fracs_labels)
 
 
-def predict_nn_rule(nbr_list_sorted, labels, log_complexity=1.0):
+def predict_nn_rule(nbr_list_sorted, labels, margin=1.0):
     """
     Given matrix of ordered nearest neighbors for each point, returns AKNN's label predictions and adaptive neighborhood sizes.
     
@@ -98,7 +98,7 @@ def predict_nn_rule(nbr_list_sorted, labels, log_complexity=1.0):
     labels: array of shape (n_samples)
         Dataset labels.
     
-    log_complexity: float
+    margin: float
         The confidence parameter "A" from the AKNN paper.
 
     Returns
@@ -111,7 +111,7 @@ def predict_nn_rule(nbr_list_sorted, labels, log_complexity=1.0):
     """
     pred_labels = []
     adaptive_ks = []
-    thresholds = log_complexity/np.sqrt(np.arange(nbr_list_sorted.shape[1])+1)
+    thresholds = margin/np.sqrt(np.arange(nbr_list_sorted.shape[1])+1)
     distinct_labels = np.unique(labels)
     for i in range(nbr_list_sorted.shape[0]):
         (pred_label, adaptive_k_ndx, _) = aknn(nbr_list_sorted[i,:], labels, thresholds)

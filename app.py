@@ -221,7 +221,7 @@ def update_landscape(
     cscale = app_config.params['colorscale_discrete']
     # Check if a continuous feature is chosen to be plotted.
     if (color_scheme in ['Adaptive k (# neighbors)', 'Adaptive k quantile', 'Predicted labels']):
-        # pred_labels, adaptive_ks = aknn_alg.predict_nn_rule(nbr_list_sorted, data_df['Labels'], log_complexity=confidence_param, mode='ovr')
+        # pred_labels, adaptive_ks = aknn_alg.predict_nn_rule(nbr_list_sorted, data_df['Labels'], margin=confidence_param, mode='ovr')
         pred_labels_name = 'Predicted labels (A = {:.1f})'.format(confidence_param)
         adaptive_ks_name = 'Adaptive k (A = {:.1f})'.format(confidence_param)
         data_df['Adaptive k (# neighbors)'] = data_df[adaptive_ks_name].values
