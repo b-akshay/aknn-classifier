@@ -31,4 +31,4 @@ six==1.11.0
 traitlets==4.3.2
 umap
 urllib3==1.26.5
-Werkzeug==0.15.3
+Werkzeug==2.2.3
